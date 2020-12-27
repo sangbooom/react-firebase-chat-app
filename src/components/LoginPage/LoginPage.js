@@ -51,6 +51,8 @@ const LoginPage = () => {
           <p>패스워드는 적어도 6글자 이상이여야 합니다</p>
         )}
 
+        {errorFromSubmit && <p>{errorFromSubmit}</p>}
+
         <input type="submit" disabled={loading} />
         <Link style={{ color: "gray", textDecoration: "none" }} to="register">
           아직 아이디가 없다면...
