@@ -6,13 +6,42 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { connect } from "react-redux";
 import firebase from "../../../firebase";
+import { setCurrentChatRoom } from "../../../redux/actions/chatRoom_action";
 
-class ChatRooms extends Component {
+export class ChatRooms extends Component {
   state = {
     show: false,
     name: "",
     description: "",
     chatRoomsRef: firebase.database().ref("chatRooms"),
+    chatRooms: [],
+    firstLoad: true,
+    activeChatRoomId: "",
+  };
+
+  componentDidMount() {
+    this.AddChatRoomsListeners();
+  }
+
+  setFirstChatRoom = () => {
+    const firstChatRoom = this.state.chatRooms[0];
+    if (this.props.firstLoad && this.props.chatRooms.length > 0) {
+      this.props.dispatch(setCurrentChatRoom(firstChatRoom));
+      this.setState({ activeChatRoomId: firstChatRoom.id });
+    }
+    this.setState({ firstLoad: false });
+  };
+
+  AddChatRoomsListeners = () => {
+    let chatRoomsArray = [];
+
+    this.state.chatRoomsRef.on("child_added", (DataSnapshot) => {
+      //이벤트 리스너, 파이어베이스 저장소에서 실시간으로 가져옴
+      chatRoomsArray.push(DataSnapshot.val());
+      this.setState({ chatRooms: chatRoomsArray }, () =>
+        this.setFirstChatRoom()
+      );
+    });
   };
 
   handleClose = () => this.setState({ show: false });
@@ -56,6 +85,26 @@ class ChatRooms extends Component {
 
   isFormValid = (name, description) => name && description;
 
+  changeChatRoom = (room) => {
+    this.props.dispatch(setCurrentChatRoom(room));
+    this.setState({ activeChatRoomId: room.id });
+  };
+
+  renderChatRooms = (chatRooms) =>
+    chatRooms.length > 0 &&
+    chatRooms.map((room) => (
+      <li
+        key={room.id}
+        style={{
+          backgroundColor:
+            room.id === this.state.activeChatRoomId && "#ffffff45",
+        }}
+        onClick={() => this.changeChatRoom(room)}
+      >
+        # {room.name}{" "}
+      </li>
+    ));
+
   render() {
     return (
       <div>
@@ -78,6 +127,10 @@ class ChatRooms extends Component {
             }}
           />
         </div>
+
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {this.renderChatRooms(this.state.chatRooms)}
+        </ul>
 
         <Modal show={this.state.show} onHide={this.handleClose}>
           <Modal.Header closeButton>
@@ -111,7 +164,7 @@ class ChatRooms extends Component {
               Close
             </Button>
             <Button variant="primary" onClick={this.handleSubmit}>
-              Save Changes
+              Create
             </Button>
           </Modal.Footer>
         </Modal>
@@ -124,6 +177,7 @@ const mapStateToProps = (state) => {
   //useDispatch()
   return {
     user: state.user.currentUser,
+    chatRoom: state.chatRoom.currentChatRoom
   };
 };
-export default connect()(ChatRooms);
+export default connect(mapStateToProps)(ChatRooms);

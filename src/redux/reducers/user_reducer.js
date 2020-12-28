@@ -5,7 +5,7 @@ const initialUserState = {
   isLoading: true,
 };
 
-export default function asd(state = initialUserState, action) {
+export default function (state = initialUserState, action) {
   switch (action.type) {
     case SET_USER:
       return {
