@@ -33,16 +33,15 @@ class MainPanel extends Component {
       });
   };
 
-  renderMessages = (messages) => {
+  renderMessages = (messages) =>
     messages.length > 0 &&
-      messages.map((message) => (
-        <Message
-          key={message.timestamp}
-          message={message}
-          user={this.props.user}
-        />
-      ));
-  };
+    messages.map((message) => (
+      <Message
+        key={message.timestamp}
+        message={message}
+        user={this.props.user}
+      />
+    ));
 
   render() {
     const { messages } = this.state;

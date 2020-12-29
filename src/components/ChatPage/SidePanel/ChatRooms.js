@@ -29,7 +29,7 @@ export class ChatRooms extends Component {
 
   setFirstChatRoom = () => {
     const firstChatRoom = this.state.chatRooms[0];
-    if (this.props.firstLoad && this.props.chatRooms.length > 0) {
+    if (this.state.firstLoad && this.state.chatRooms.length > 0) {
       this.props.dispatch(setCurrentChatRoom(firstChatRoom));
       this.setState({ activeChatRoomId: firstChatRoom.id });
     }
