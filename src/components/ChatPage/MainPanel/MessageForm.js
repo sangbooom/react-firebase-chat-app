@@ -73,7 +73,8 @@ const MessageForm = () => {
 
     const filePath = `/message/public/${file.name}`;
     const metadata = { contentType: mime.lookup(file.name) };
-
+    setLoading(true);
+    
     try {
       let uploadTask = storageRef.child(filePath).put(file, metadata);
 
@@ -84,7 +85,20 @@ const MessageForm = () => {
             100
         );
         setPercentage(percentage);
-      });
+      },
+      err => {
+        console.error(err);
+        setLoading(false);
+      },
+      () => {
+        uploadTask.snapshot.ref.getDownloadURL()
+        .then(downloadURL => {
+          messagesRef.child(chatRoom.id).push().set(createMessage(downloadURL))
+          setLoading(false);
+        })
+      }
+      );
+
     } catch (error) {
       alert(error);
     }
@@ -144,6 +158,7 @@ const MessageForm = () => {
       </Row>
       <input
         type="file"
+        accept="image/jpeg, image/png"
         style={{ display: "none" }}
         ref={inputOpenImageRef}
         onChange={handleUploadImage}
